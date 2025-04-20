@@ -1,0 +1,23 @@
+﻿services:
+  store.api:
+    image: store.api
+    container_name: net_api_store
+    build:
+      context: .
+      dockerfile: Store.API/Dockerfile
+    networks:
+      - backend
+      
+
+  store:
+    image: store
+    container_name: net_store
+    build:
+      context: .
+      dockerfile: Store/Dockerfile
+    networks:
+      - backend
+      
+      
+networks:
+  backend:
