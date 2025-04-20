@@ -55,6 +55,7 @@ app.UseHttpsRedirection();
 app.UseExceptionHandler();
 
 app.UseAuthorization();
+app.MapDefaultEndpoints(); // /health, /alive
 app.MapControllers();
 
 app.Run();
