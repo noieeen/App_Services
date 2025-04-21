@@ -1,3 +1,4 @@
+using Core.ServiceHelper;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Configuration;
@@ -20,11 +21,7 @@ public static class Extensions
     public static IHostApplicationBuilder AddServiceDefaults(this IHostApplicationBuilder builder,
         ResourceBuilder resourceBuilder)
     {
-        
-       
-        var otelConnectionString = builder.Configuration.GetConnectionString("OTLP_ENDPOINT_URL") ??
-                                   throw new ArgumentNullException(
-                                       "builder.Configuration.GetConnectionString(\"OTLP_ENDPOINT_URL\")");
+        var otelConnectionString = OtelConnectionString.GetOtelGrpcConnectionString(builder.Configuration);
 
         if (!string.IsNullOrWhiteSpace(otelConnectionString))
         {
@@ -38,7 +35,7 @@ public static class Extensions
         builder.Services.AddServiceDiscovery();
 
         builder.Services.ConfigureHttpClientDefaults(http => { http.AddServiceDiscovery(); });
-       
+
         return builder;
     }
 
@@ -96,9 +93,7 @@ public static class Extensions
 
     private static IHostApplicationBuilder AddOpenTelemetryExporters(this IHostApplicationBuilder builder)
     {
-        var otelConnectionString = builder.Configuration.GetConnectionString("OTLP_ENDPOINT_URL") ??
-                                   throw new ArgumentNullException(
-                                       "builder.Configuration.GetConnectionString(\"OTLP_ENDPOINT_URL\")");
+        var otelConnectionString = OtelConnectionString.GetOtelGrpcConnectionString(builder.Configuration);
 
         if (!string.IsNullOrWhiteSpace(otelConnectionString))
         {
@@ -135,9 +130,7 @@ public static class Extensions
 
     public static IHostApplicationBuilder AddDefaultLogging(this IHostApplicationBuilder builder)
     {
-        var otelConnectionString = builder.Configuration.GetConnectionString("OTLP_ENDPOINT_HTTP_URL") ??
-                                   throw new ArgumentNullException(
-                                       "builder.Configuration.GetConnectionString(\"OTLP_ENDPOINT_HTTP_URL\")");
+        var otelConnectionString = OtelConnectionString.GetOtelHttpConnectionString(builder.Configuration);
 
         if (!string.IsNullOrWhiteSpace(otelConnectionString))
         {

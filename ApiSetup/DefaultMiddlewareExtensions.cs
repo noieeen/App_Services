@@ -1,7 +1,9 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Hosting;
+using Middleware;
+using ObservabilityExtensions.Otel;
 
-namespace Middleware;
+namespace ApiSetup;
 
 public static class DefaultMiddlewareExtensions
 {
@@ -14,10 +16,11 @@ public static class DefaultMiddlewareExtensions
         }
 
         app.UseHttpsRedirection();
-        app.UseRouting();
+        // app.UseRouting();
         app.UseExceptionHandler();
         app.UseAuthorization();
         app.UseMiddleware<ApiResponseMiddleware>();
+        app.HealthCheckEndpoints();
         app.MapControllers();
 
         return app;

@@ -1,4 +1,4 @@
-namespace Middleware;
+namespace Core.Responses;
 
 public class ApiResponse<T>
 {

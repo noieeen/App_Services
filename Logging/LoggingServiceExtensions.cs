@@ -1,30 +1,27 @@
-using Microsoft.Extensions.Configuration;
+using Core.ServiceHelper;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Serilog;
+using Serilog.Sinks.OpenTelemetry;
 
 namespace Logging;
 
-public static class LoggingExtensions
+public static class LoggingServiceExtensions
 {
-    // public static void AddDefaultLogging(this IHostBuilder host)
-    // {
-    //     host.UseSerilog((ctx, cfg) => { cfg.ReadFrom.Configuration(ctx.Configuration); });
-    // }
-    public static IHostBuilder AddStructuredLogging(this IHostBuilder host)
-    // public static IHostApplicationBuilder AddStructuredLogging(this IHostApplicationBuilder builder)
+    public static IServiceCollection AddDefaultLogging(this IServiceCollection services)
     {
-        var otelConnectionString = builder.Configuration.GetConnectionString("OTLP_ENDPOINT_HTTP_URL") ??
-                                   throw new ArgumentNullException(
-                                       "builder.Configuration.GetConnectionString(\"OTLP_ENDPOINT_HTTP_URL\")");
+        services.AddLogging();
+        return services;
+    }
+    public static IHostApplicationBuilder AddStructuredLogging(this IHostApplicationBuilder builder)
+    {
+        var otelConnectionString = OtelConnectionString.GetOtelGrpcConnectionString(builder.Configuration);
 
         if (!string.IsNullOrWhiteSpace(otelConnectionString))
         {
-            var loggerConfig = new LoggerConfiguration()
-                // .Filter.ByExcluding("RequestPath like '/health%'")
-                // .Filter.ByExcluding("RequestPath like '/metrics%'")
-                .ReadFrom.Configuration(builder.Configuration)
-                .Enrich.FromLogContext();
-
+            builder.Logging.ClearProviders();
+            var loggerConfig = SerilogConfig.SerilogConfigDefaults(builder.Configuration);
 
             loggerConfig.WriteTo.OpenTelemetry(options =>
             {
